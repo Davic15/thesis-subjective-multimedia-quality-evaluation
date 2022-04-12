@@ -1,0 +1,27 @@
+{
+  "name": "thesis-subjective-multimedia-quality-evaluation",
+  "version": "1.0.0",
+  "description": "Thesis: Subjective Multimedia Quality Evaluation",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Davic15/thesis-subjective-multimedia-quality-evaluation.git"
+  },
+  "author": "Franklin David Macias Avellan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Davic15/thesis-subjective-multimedia-quality-evaluation/issues"
+  },
+  "homepage": "https://github.com/Davic15/thesis-subjective-multimedia-quality-evaluation#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "express": "^4.17.3",
+    "mongoose": "^6.2.10"
+  }
+}
