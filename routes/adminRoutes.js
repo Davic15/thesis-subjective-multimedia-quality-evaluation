@@ -1,6 +1,10 @@
 const express = require('express');
 
-const router = express.Router()
+const adminController = require('../controllers/admin');
+
+const router = express.Router();
+
+router.post('/upload', adminController.uploadStimuli);
 
 
 module.exports = router;

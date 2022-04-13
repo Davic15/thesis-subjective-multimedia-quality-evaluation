@@ -14,16 +14,45 @@
  *  Second groupd: installed using npm
  *  Third group: defined by me
  */
+const path = require('path');
+
 const express = require('express');
 const mongoose = require('mongoose');
+const multer = require('multer');
+const bodyParser = require('body-parser');
 
 const adminRoutes = require('./routes/adminRoutes');
 const testRoutes = require('./routes/testRoutes');
 
-
-
 const app = express();
 
+/**
+ *  Working with files using multer (images/videos)
+ */
+const fileStorage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'stimuli');
+    },
+    filename: function(req, file, cb) {
+        cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname);
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'video/mp4' || file.mimetype === 'video/avi' || file.mimetype === 'video/mkv') {
+            cb(null, true);
+    } else {
+        cb(null, false);
+    }
+}
+
+app.use(bodyParser.json());
+//app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('stimuliOne'));
+//app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).fields({ name: 'stimuliOne' }, { name: 'stimuliTwo' }));
+
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).array('stimuli'));
+app.use('/stimuli', express.static(path.join(__dirname, 'stimuli')));
 
 /**
  *  Cross-Origin Resource Sharing (CORS)
@@ -44,6 +73,18 @@ app.use((req, res, next) => {
  */
 app.use('/admin', adminRoutes);
 app.use('/test', testRoutes);
+
+/**
+ *  Middleware to handle errors.
+ *  Bad routes, etc.
+ */
+app.use((error, req, res, next) => {
+    console.log(error);
+    const status = error.statusCode || 500;
+    const message = error.message;
+    const data = error.data;
+    res.status(status).json({ message: message, data: data })
+});
 
 /**
  *  Connection with the database, the project uses MongoDB as database and Moongose as an object modeling for node.js
