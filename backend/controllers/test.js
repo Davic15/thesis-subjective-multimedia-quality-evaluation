@@ -1,8 +1,12 @@
 
+const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 
 const Stimuli = require('../models/stimuli');
 const User = require('../models/user');
+const Response = require('../models/response');
+
+const objectId = mongoose.Types.ObjectId;
 
 exports.getStimuli = (req, res, next) => {
     console.log('Get Stimuli');
@@ -52,14 +56,14 @@ exports.postUserInformation = (req, res, next) => {
             gender: gender,
             age: age
         });
-
-        return user.save()
-        .then(user => {
-            console.log('User information saved!');
-            res.status(201).json({ 
-                message: 'User information saved!',
-                user: user.email
-            })
+        return user.save();
+    })
+    .then(user => {
+        console.log('User information saved!');
+        res.status(201).json({ 
+            message: 'User information saved!',
+            email: user.email,
+            userId: user._id
         })
     })
     .catch(err => {
@@ -71,5 +75,46 @@ exports.postUserInformation = (req, res, next) => {
 }
 
 exports.postAnswers = (req, res, next) => {
-    
+    console.log('Entering post Answer');
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        const error = new Error('Validation failed, entered data is incorrect.')
+        error.statusCode = 422;
+        throw error;
+    }
+    const userId = objectId(req.body.userId);
+    const stimuliId = objectId(req.body.stimuliId);
+    const answerNormal = req.body.answerNormal;
+    const answerSanity = req.body.answerSanity;
+
+    const response = new Response({
+        user_id: userId,
+        stimuli_id: stimuliId,
+        answer_normal: answerNormal || 'N/A',
+        answer_sanity: answerSanity || 'N/A'
+    });
+
+    Stimuli.findById(stimuliId)
+    .then(stimuli => {
+        if (!stimuli) {
+            const error = new Error('Could not find that stimuli in the database.');
+            error.statusCode = 404;
+            throw error;
+        }
+        return response.save()
+    })
+    .then(response => {
+        console.log(response)
+        res.status(200).json({ 
+            message: 'Response saved!',
+            responseId: response._id
+        })
+    })
+    .catch(err => {
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    })
+
 }

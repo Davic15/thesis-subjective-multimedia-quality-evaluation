@@ -18,12 +18,10 @@ const responseSchema = new Schema({
             require: true
         }
     ],
-    answer_sanity: [
-        {
-            type: String,
-            require: true
-        }
-    ]
+    answer_sanity: {
+        type: String,
+        require: true
+    }
 });
 
 module.exports = mongoose.model('Response', responseSchema);
