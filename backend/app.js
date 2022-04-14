@@ -94,7 +94,7 @@ app.use((error, req, res, next) => {
 mongoose
     .connect('mongodb+srv://david:david150888@cluster0.c4d9j.mongodb.net/thesis?retryWrites=true&w=majority')
     .then(() => {
-        console.log(`Connection to the database stablished!`);
+        console.log(`Connection to the database established!`);
         app.listen(8080);
     })
     .catch(err => {
