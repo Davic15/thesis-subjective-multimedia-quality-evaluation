@@ -15,11 +15,14 @@
  *  Third group: defined by me
  */
 const path = require('path');
+const fs = require('fs');
 
 const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const compression = require('compression');
 
 const adminRoutes = require('./routes/adminRoutes');
 const testRoutes = require('./routes/testRoutes');
@@ -76,6 +79,16 @@ app.use('/admin', adminRoutes);
 app.use('/test', testRoutes);
 
 /**
+ *  Helmet, extra header protection
+ */
+app.use(helmet());
+
+/**
+ *  Compression
+ */
+app.use(compression());
+
+/**
  *  Middleware to handle errors.
  *  Bad routes, etc.
  */
@@ -84,7 +97,7 @@ app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message;
     const data = error.data;
-    res.status(status).json({ message: message, data: data })
+    res.status(status).json({ message: message, data: data });
 });
 
 /**
