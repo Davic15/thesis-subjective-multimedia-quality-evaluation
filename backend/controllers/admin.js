@@ -3,13 +3,13 @@ const path = require('path');
 const Stimuli = require('../models/stimuli');
 
 exports.uploadStimuli = (req, res, next) => {
-    console.log(req.files)
+    console.log('Entering upload Stimuli method.');
     if (req.files.length === 0) {
         const error = new Error('No stimuli provided.');
         throw error;
     }
     if (req.files.length === 1) {
-        const error = new Error('A stimuli is missing.');
+        const error = new Error('A stimuli is missing, or a wrong type of file was provided.');
         throw error;
     }
 
@@ -26,8 +26,7 @@ exports.uploadStimuli = (req, res, next) => {
     stimuli.save()
     .then(result => {
         res.status(201).json({
-            message: 'Stimuli uploaded successfuly',
-            action: 'Upload stimuli'
+            message: 'Stimuli uploaded successfuly'
         });
         console.log(result);
     })

@@ -44,6 +44,7 @@ const fileFilter = (req, file, cb) => {
             cb(null, true);
     } else {
         cb(null, false);
+        console.log('Wrong type of file. Only images and videos are allow.')
     }
 }
 
