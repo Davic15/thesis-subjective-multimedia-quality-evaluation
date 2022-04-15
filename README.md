@@ -1,7 +1,7 @@
 # Thesis: Objective Multimedia Quality Evaluation
 
 ## Note: 
-* No sign up and/or sign in require to test the server.
+* No sign up and/or sign is required to test the server.
 * Use your own MongoDB link to connect to your own database.
 
 ## API List (End Points)
@@ -44,3 +44,4 @@ Body: {
     answerSanity: string
 }
 Response: 200
+Description: Save answers for normal questions or a single answer for a sanity qustion. The userId and the stimuliId are required to save the answer in the database.
