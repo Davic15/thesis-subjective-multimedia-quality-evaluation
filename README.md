@@ -14,4 +14,17 @@ Body: {
     questionsSanity: string 
 }
 Response: 201
-Description: Upload two stimuli (video and/or image), and the questions for those stimuli and a sanity question.
+Description: Upload two stimuli files (video and/or image), the questions for those stimuli and a sanity question. The data is saved into the database.
+
+* ### /test/postUserInformation
+Access: public
+Type: Post
+Body: {
+    email: string,
+    age: integer,
+    gender: string
+}
+Response: 201
+Description: Save basic information about the user who is taking the test, more or less information can be asked.
+
+* ### /test/getNextItems
