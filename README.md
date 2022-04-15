@@ -6,7 +6,7 @@
 
 ## API List (End Points)
 * ### /admin/postUploadStimuli
-Access: public
+Access: Public
 Type: Post
 Body: { 
     stimuliPath: array(), 
@@ -17,7 +17,7 @@ Response: 201
 Description: Upload two stimuli files (video and/or image), the questions for those stimuli and a sanity question. The data is saved into the database.
 
 * ### /test/postUserInformation
-Access: public
+Access: Public
 Type: Post
 Body: {
     email: string,
@@ -28,3 +28,19 @@ Response: 201
 Description: Save basic information about the user who is taking the test, more or less information can be asked.
 
 * ### /test/getNextItems
+Access: Public
+Type: Get
+Body: { none }
+Response: 200
+Description: Returns an array with all stimuli, normal questions and sanity question.
+
+* ### /test/postAnswers
+Access: Public
+Type: Post
+Body: {
+    userId: ObjectId,
+    stimuliId: ObjectId,
+    answerNormal: string,
+    answerSanity: string
+}
+Response: 200
