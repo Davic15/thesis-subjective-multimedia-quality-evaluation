@@ -2,23 +2,12 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const responseSchema = new Schema({
-    user_id: {
+    question_id: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Question',
         require: true
     },
-    stimuli_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Stimuli',
-        require: true
-    },
-    answer_normal: [
-        {
-            type: String,
-            require: true
-        }
-    ],
-    answer_sanity: {
+    response_choice: {
         type: String,
         require: true
     }
