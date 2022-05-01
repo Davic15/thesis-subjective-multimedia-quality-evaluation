@@ -1,5 +1,6 @@
 
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 
 const Stimuli = require('../models/stimulus');
@@ -64,11 +65,19 @@ exports.postUserInformation = (req, res, next) => {
     })
     .then(user => {
         console.log('User information saved!');
+        const token = jwt.sign({
+            email: user.email,
+            userId: user._id.toString()
+        }, 'secret', { expiresIn: '1h'} );
+
         res.status(201).json({ 
             message: 'User information saved!',
             email: user.email,
-            userId: user._id
-        })
+            userId: user._id,
+            token: token
+        });
+        //res.status(200).json({ token: token, userId: user._id.toString() })
+        console.log(token)
     })
     .catch(err => {
         if(!err.statusCode) {
