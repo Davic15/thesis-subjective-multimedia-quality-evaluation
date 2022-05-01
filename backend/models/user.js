@@ -8,12 +8,12 @@ const userSchema = new Schema({
     },
     age: {
         type: Number,
-        required: false
+        require: true
     },
     gender: {
         type: String,
-        require: false
+        require: true
     }
-}, { timestamp: true });
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

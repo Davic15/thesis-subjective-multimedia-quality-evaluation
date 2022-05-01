@@ -1,42 +1,46 @@
-const path = require('path');
+const mongoose = require('mongoose');
 
 const { validationResult } = require('express-validator');
 
-const Stimuli = require('../models/stimuli');
+const Stimulus = require('../models/stimulus');
+const Question = require('../models/question');
 
-exports.postUploadStimuli = (req, res, next) => {
-    console.log('Entering upload Stimuli method.');
+const objectId = mongoose.Types.ObjectId;
+
+//* Add Stimulus
+exports.postAddStimulus = (req, res, next) => {
+    console.log('Entering upload Stimulus method.');
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         const error = new Error('Validation failed, entered data is incorrect.');
         error.statusCode = 422;
         throw error;
     }
-    if (req.files.length === 0) {
-        const error = new Error('No stimuli provided.');
-        throw error;
-    }
-    if (req.files.length === 1) {
-        const error = new Error('A stimuli is missing, or a wrong type of file was provided.');
-        throw error;
-    }
+    const questionId = objectId(req.body.questionId);
+    const url = req.body.url;
+    const type = req.body.type.split(' ');
+    const sanity = req.body.sanity;
 
-    const stimuliPath = req.files.map( file => (file.path))
-    const questionsNormal = req.body.questionsNormal;
-    const questionsSanity = req.body.questionsSanity;
-
-    const stimuli = new Stimuli({
-        path: stimuliPath,
-        questions_normal: questionsNormal,
-        questions_sanity: questionsSanity
-    })
-
-    stimuli.save()
-    .then(result => {
-        res.status(201).json({
-            message: 'Stimuli uploaded successfuly'
+    Question.findById(questionId)
+    .then(question => {
+        if(!question) {
+            const error = new Error ('Could not find a question.');
+            error.statusCode = 404;
+            throw Error;
+        }        
+        const stimulus = new Stimulus({
+            url: url,
+            question_id: questionId,
+            type: type,
+            sanity: sanity
         });
-        console.log(result);
+        return stimulus.save();
+    })
+    .then(result => {
+        res.status(200).json({
+            message: 'Stimulus uploaded successfully!',
+            stimulusId: result._id
+        });
     })
     .catch(err => {
         if(!err.statusCode) {
@@ -44,4 +48,36 @@ exports.postUploadStimuli = (req, res, next) => {
         }
         next(err);
     })
-}
+};
+
+
+//* Add questions
+exports.postAddQuestion = (req, res, next) => {
+    console.log('Entering upload question method.');
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        const error = new Error('Validation failed, entered data is incorrect.');
+        error.statusCode = 422;
+        throw error;
+    }
+
+    const questionBody = req.body.question;
+    const question = new Question({
+        text_question: questionBody
+    });
+
+    question.save()
+    .then(question => {
+        res.status(201).json({
+            message: 'Question added successfully.',
+            questionId: question._id
+        })
+        console.log(question);
+    })
+    .catch(err => {
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    });
+};

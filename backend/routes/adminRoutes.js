@@ -7,12 +7,21 @@ const adminController = require('../controllers/admin');
 const router = express.Router();
 
 router.post(
-    '/postUploadStimuli',
+    '/postAddStimulus',
     [
-        body('questionsNormal').notEmpty().withMessage('Please type at least one question.'),
-        body('questionsSanity').notEmpty().withMessage('Please type the sanity question.')
+        body('url').notEmpty().isURL().withMessage('Please provide an url with an image.'),
+        body('type').notEmpty().withMessage('Please enter stimulus type for this image.'),
+        body('sanity').isBoolean().withMessage('Please provide a correct option.')
     ],
-    adminController.postUploadStimuli
+    adminController.postAddStimulus
+);
+
+router.post(
+    '/postAddQuestion',
+    [
+        body('question').notEmpty().withMessage('Please prove a valid question.')
+    ],
+    adminController.postAddQuestion
 );
 
 

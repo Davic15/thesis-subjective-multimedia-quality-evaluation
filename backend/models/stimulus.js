@@ -4,17 +4,17 @@ const Schema = mongoose.Schema;
 const stimulusSchema = new Schema({
     url: {
         type: String,
-        required: true
+        require: true
     },
     question_id: {
         type: Schema.Types.ObjectId,
         ref: 'Question',
-        required: true
+        require: true
     },
     type: [
         {
             type: String,
-            required: true
+            require: true
         }
     ],
     sanity: {
@@ -23,4 +23,4 @@ const stimulusSchema = new Schema({
     },
 });
 
-module.exports = mongoose.model('stimulus', stimulusSchema);
+module.exports = mongoose.model('Stimulus', stimulusSchema);

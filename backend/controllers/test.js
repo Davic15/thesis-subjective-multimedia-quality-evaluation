@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 
-const Stimuli = require('../models/stimuli');
+const Stimuli = require('../models/stimulus');
 const User = require('../models/user');
 const Response = require('../models/response');
 
@@ -31,6 +31,10 @@ exports.getStimuli = (req, res, next) => {
     })
 }
 
+/**
+ * postUserInformation method
+ * * It saves user basic information. The email should be unique otherwise an error will be thrown.
+ */
 exports.postUserInformation = (req, res, next) => {
     console.log('Post user information');
     const errors = validationResult(req);

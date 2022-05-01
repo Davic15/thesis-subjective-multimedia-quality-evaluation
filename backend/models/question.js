@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const questionSchema = new Schema({
-    test_question: {
+    text_question: {
         type: String,
         require: true
     }

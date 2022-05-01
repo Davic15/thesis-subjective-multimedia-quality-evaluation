@@ -29,34 +29,10 @@ const testRoutes = require('./routes/testRoutes');
 const app = express();
 
 /**
- *  Working with files using multer (images/videos)
- */
-/*
-const fileStorage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, 'stimuli');
-    },
-    filename: function(req, file, cb) {
-        cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname);
-    }
-});*/
-/*
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg' ||
-        file.mimetype === 'video/mp4' || file.mimetype === 'video/avi' || file.mimetype === 'video/mkv') {
-            cb(null, true);
-    } else {
-        cb(null, false);
-        console.log('Wrong type of file. Only images and videos are allow.')
-    }
-}*/
-
+ *  Data can be parsed as json or x-www-form-urlencoded for any post request
+*/
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-//app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('stimuliOne'));
-//app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).fields({ name: 'stimuliOne' }, { name: 'stimuliTwo' }));
-
-//app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).array('stimuli'));
-//app.use('/stimuli', express.static(path.join(__dirname, 'stimuli')));
 
 /**
  *  Cross-Origin Resource Sharing (CORS)
