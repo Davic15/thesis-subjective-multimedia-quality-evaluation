@@ -11,17 +11,13 @@ const stimulusSchema = new Schema({
         ref: 'Question',
         require: true
     },
-    type: [
+    type_id: [
         {
             type: Schema.Types.ObjectId,
             ref: 'Type',
             require: true
         }
-    ],
-    /*sanity: {
-        type: Boolean,
-        require: true
-    },*/
+    ]
 });
 
 module.exports = mongoose.model('Stimulus', stimulusSchema);

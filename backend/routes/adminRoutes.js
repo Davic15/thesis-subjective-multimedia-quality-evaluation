@@ -16,9 +16,17 @@ router.post(
 router.post(
     '/postAddQuestion',
     [
-        body('question').notEmpty().withMessage('Please prove a valid question.')
+        body('question').notEmpty().withMessage('Please provide a valid question.')
     ],
     adminController.postAddQuestion
+);
+
+router.post(
+    '/postTypesStimulus',
+    [
+        body('typeStimulus').notEmpty().isArray().withMessage('Please prive a type/types por each stimulus.')
+    ],
+    adminController.postTypesStimulus
 );
 
 module.exports = router;

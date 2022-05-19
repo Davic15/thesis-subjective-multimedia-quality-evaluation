@@ -10,7 +10,7 @@ const objectId = mongoose.Types.ObjectId;
 
 //* Add Stimulus
 exports.postAddStimulus = (req, res, next) => {
-    console.log('Entering upload Stimulus method.');
+    console.log('Entering Add Stimulus method.');
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         const error = new Error('Validation failed, entered data is incorrect.');
@@ -21,8 +21,9 @@ exports.postAddStimulus = (req, res, next) => {
     const url = req.body.url;
     //const type = req.body.type.split(' ');
     const type = req.body.type;
-    const sanity = req.body.sanity;
-    console.log(req.body)
+    //const sanity = req.body.sanity;
+    console.log(type);
+    console.log(req.body);
 
     Question.findById(questionId)
     .then(question => {
@@ -34,8 +35,7 @@ exports.postAddStimulus = (req, res, next) => {
         const stimulus = new Stimulus({
             url: url,
             question_id: questionId,
-            type: type,
-            sanity: sanity
+            type_id: type
         });
         return stimulus.save();
     })
@@ -56,7 +56,7 @@ exports.postAddStimulus = (req, res, next) => {
 
 //* Add questions
 exports.postAddQuestion = (req, res, next) => {
-    console.log('Entering upload question method.');
+    console.log('Entering Add question method.');
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         const error = new Error('Validation failed, entered data is incorrect.');
@@ -84,3 +84,32 @@ exports.postAddQuestion = (req, res, next) => {
         next(err);
     });
 };
+
+exports.postTypesStimulus = (req, res, next) => {
+    console.log("Entering add Type per Stimulus");
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        const error = new Error('Validation failed, entered data is incorrect');
+        error.statusCode = 422;
+        throw Error;
+    }
+    const typeText = req.body.typeStimulus.toString().split(',');
+    console.log(typeText)
+    const type = new Type({
+        type_text: typeText
+    });
+    type.save()
+    .then(type => {
+        res.status(201).json({
+            message: 'Type added successfully',
+            typeId: type._id
+        })
+        console.log(type);
+    })
+    .catch(err => {
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    });
+}
