@@ -86,7 +86,7 @@ exports.postUserInformation = (req, res, next) => {
         next(err);
     })
 }
-
+/*
 exports.postAnswers = (req, res, next) => {
     console.log('Entering post Answer');
     const errors = validationResult(req);
@@ -130,4 +130,4 @@ exports.postAnswers = (req, res, next) => {
         next(err);
     })
 
-}
+}*/

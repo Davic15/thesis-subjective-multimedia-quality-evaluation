@@ -4,6 +4,7 @@ const { validationResult } = require('express-validator');
 
 const Stimulus = require('../models/stimulus');
 const Question = require('../models/question');
+const Type = require('../models/type');
 
 const objectId = mongoose.Types.ObjectId;
 
@@ -18,8 +19,10 @@ exports.postAddStimulus = (req, res, next) => {
     }
     const questionId = objectId(req.body.questionId);
     const url = req.body.url;
-    const type = req.body.type.split(' ');
+    //const type = req.body.type.split(' ');
+    const type = req.body.type;
     const sanity = req.body.sanity;
+    console.log(req.body)
 
     Question.findById(questionId)
     .then(question => {

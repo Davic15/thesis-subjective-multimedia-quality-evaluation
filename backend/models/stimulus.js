@@ -13,14 +13,15 @@ const stimulusSchema = new Schema({
     },
     type: [
         {
-            type: String,
+            type: Schema.Types.ObjectId,
+            ref: 'Type',
             require: true
         }
     ],
-    sanity: {
+    /*sanity: {
         type: Boolean,
         require: true
-    },
+    },*/
 });
 
 module.exports = mongoose.model('Stimulus', stimulusSchema);
