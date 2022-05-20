@@ -11,13 +11,11 @@ const stimulusSchema = new Schema({
         ref: 'Question',
         require: true
     },
-    type_id: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Type',
-            require: true
-        }
-    ]
+    type_id: {
+        type: Schema.Types.ObjectId,
+        ref: 'Type',
+        require: true
+    }
 });
 
 module.exports = mongoose.model('Stimulus', stimulusSchema);

@@ -7,8 +7,7 @@ router.post(
     '/postAddStimulus',
     [
         body('url').notEmpty().isURL().withMessage('Please provide an url with an image.'),
-        body('type').notEmpty().isArray().withMessage('Please enter stimulus type for this image.'),
-        body('sanity').isBoolean().withMessage('Please provide a correct option.')
+        body('typeId').notEmpty().withMessage('Please enter stimulus type for this image.')
     ],
     adminController.postAddStimulus
 );

@@ -19,11 +19,7 @@ exports.postAddStimulus = (req, res, next) => {
     }
     const questionId = objectId(req.body.questionId);
     const url = req.body.url;
-    //const type = req.body.type.split(' ');
-    const type = req.body.type;
-    //const sanity = req.body.sanity;
-    console.log(type);
-    console.log(req.body);
+    const typeId = objectId(req.body.typeId);
 
     Question.findById(questionId)
     .then(question => {
@@ -35,7 +31,7 @@ exports.postAddStimulus = (req, res, next) => {
         const stimulus = new Stimulus({
             url: url,
             question_id: questionId,
-            type_id: type
+            type_id: typeId
         });
         return stimulus.save();
     })
