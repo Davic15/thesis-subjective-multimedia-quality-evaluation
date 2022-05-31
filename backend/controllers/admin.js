@@ -81,6 +81,7 @@ exports.postAddQuestion = (req, res, next) => {
     });
 };
 
+//* Add Types
 exports.postTypesStimulus = (req, res, next) => {
     console.log("Entering add Type per Stimulus");
     const errors = validationResult(req);

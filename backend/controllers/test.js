@@ -9,6 +9,7 @@ const Response = require('../models/response');
 
 const objectId = mongoose.Types.ObjectId;
 
+//* Get all stimuli array (testing)
 exports.getStimuli = (req, res, next) => {
     console.log('Get Stimuli');
     Stimuli.find()
@@ -86,6 +87,29 @@ exports.postUserInformation = (req, res, next) => {
         next(err);
     })
 }
+
+//* Get the stimuli to display. (Random)
+exports.getNextItems = (req, res, next) => {
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 exports.postAnswers = (req, res, next) => {
     console.log('Entering post Answer');
