@@ -90,7 +90,10 @@ exports.postUserInformation = (req, res, next) => {
 
 //* Get the stimuli to display. (Random)
 exports.getNextItems = (req, res, next) => {
-
+    // 1) check if this is the first time that user runs the application
+    // 2) If so, pick and response with two stimuli (same tipe)
+    // 3) else response with a new stimulus (or two new stimuli)
+    // Hints: Check in the table answer if the user has
 }
 
 
