@@ -6,6 +6,7 @@ const { validationResult } = require('express-validator');
 const Stimuli = require('../models/stimulus');
 const User = require('../models/user');
 const Response = require('../models/response');
+const Answer = require('../models/answer');
 
 const objectId = mongoose.Types.ObjectId;
 
@@ -91,6 +92,45 @@ exports.postUserInformation = (req, res, next) => {
 //* Get the stimuli to display. (Random)
 exports.getNextItems = (req, res, next) => {
     // 1) check if this is the first time that user runs the application
+    //  1.1) Check in the table Answer if the user has already a answer saved
+    // use the user id as parameter (after register to check if in the table answer we have that user_id)
+    console.log("Get Next Items");
+    /*Answer.aggregate([{
+        $lookup: {
+            from: "user",
+            localField: "user_id",
+            foreignField: "_id",
+            as: "newArray"
+        }
+    }]);*/
+    const userId = req.params.userId;
+    console.log(userId);
+
+    /*const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        const error = new Error('Validation failed, entered data is incorrect.');
+        error.statusCode = 422;
+        throw error;
+    }
+
+    const userId = req.params.userId;
+
+    Answer.findOne({ user_id: userId })
+    .then(userFound => {
+        if(userFound) {
+            const error = new Error('User has some data in the table Answer.');
+            error.statusCode = 409;
+            throw error;
+        }*/
+        /*const user = new User ({
+            email: email,
+            gender: gender,
+            age: age
+        });*/
+        /*return ;
+    })*/
+
+
     // 2) If so, pick and response with two stimuli (same tipe)
     // 3) else response with a new stimulus (or two new stimuli)
     // Hints: Check in the table answer if the user has
