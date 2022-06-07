@@ -1,5 +1,5 @@
 const express = require('express');
-const { body } = require('express-validator');
+const { body, query } = require('express-validator');
 const testController = require('../controllers/test');
 const isAuth = require('../middleware/is-auth');
 const router = express.Router()
@@ -23,7 +23,13 @@ router.post(
 
 
 //router.get('/getNextItems', isAuth, testController.getNextItems);
-router.get('/getNextItems/:userId', isAuth, testController.getNextItems);
+//router.get('/getNextItems/:userId', isAuth, testController.getNextItems);
+router.get('/getNextItems', isAuth,
+    [
+        query('userId').trim().notEmpty().withMessage('Please provide a valid userId.')
+    ],
+    testController.getNextItems
+);
 
 
 

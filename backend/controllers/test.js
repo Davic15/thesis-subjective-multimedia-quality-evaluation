@@ -3,17 +3,18 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 
-const Stimuli = require('../models/stimulus');
+const Stimulus = require('../models/stimulus');
 const User = require('../models/user');
 const Response = require('../models/response');
 const Answer = require('../models/answer');
+const Type = require('../models/type');
 
 const objectId = mongoose.Types.ObjectId;
 
 //* Get all stimuli array (testing)
 exports.getStimuli = (req, res, next) => {
     console.log('Get Stimuli');
-    Stimuli.find()
+    Stimulus.find()
     .then(stimuli => {
         if(stimuli.length === 0) {
             const error = new Error('No stimuli on the database. Please contact the administrator.');
@@ -95,45 +96,193 @@ exports.getNextItems = (req, res, next) => {
     //  1.1) Check in the table Answer if the user has already a answer saved
     // use the user id as parameter (after register to check if in the table answer we have that user_id)
     console.log("Get Next Items");
-    /*Answer.aggregate([{
-        $lookup: {
-            from: "user",
-            localField: "user_id",
-            foreignField: "_id",
-            as: "newArray"
-        }
-    }]);*/
-    const userId = req.params.userId;
-    console.log(userId);
-
-    /*const errors = validationResult(req);
+    const errors = validationResult(req);
     if(!errors.isEmpty()) {
         const error = new Error('Validation failed, entered data is incorrect.');
         error.statusCode = 422;
         throw error;
     }
-
-    const userId = req.params.userId;
-
+    const userId = objectId(req.query.userId);
     Answer.findOne({ user_id: userId })
     .then(userFound => {
         if(userFound) {
-            const error = new Error('User has some data in the table Answer.');
-            error.statusCode = 409;
-            throw error;
-        }*/
-        /*const user = new User ({
-            email: email,
-            gender: gender,
-            age: age
-        });*/
-        /*return ;
-    })*/
+            console.log("User found on the database");
+        } else {
+            console.log("New user");
+            let firstStimulus;
+            Stimulus.aggregate([
+                { $sample:{ size: 1 } },
+                {
+                    $lookup: {
+                        from: 'types',
+                        localField: 'type_id',
+                        foreignField: '_id',
+                        as: 'firstStimulus'
+                    }
+                }
+            ])
+            .then(stimulus => {
+                if(stimulus.length === 0) {
+                    const error = new Error('No stimuli on the database. Please contact the administrator.');
+                    error.statusCode = 404;
+                    throw error;
+                }
+                console.log(stimulus);
+                res.status(200).json({
+                    message: 'Fetched first stimulus',
+                    stimulus: stimulus
+                })
+                firstStimulus = stimulus[0].firstStimulus[0].type_text
+                console.log(firstStimulus)
+                return stimulus;
+            })
+            .catch(err => {
+                if(!err.statusCode) {
+                    err.statusCode = 500;
+                }
+                next(err);
+            })
 
 
-    // 2) If so, pick and response with two stimuli (same tipe)
+            Stimulus.aggregate([
+                { $sample:{ size: 1 } },
+                {
+                    $lookup: {
+                        from: 'types',
+                        localField: 'type_id',
+                        foreignField: '_id',
+                        as: 'firstStimulus',
+                        pipeline: { type_id: { $in: [firstStimulus ]}}
+                    },
+                }
+            ])
+            .then(stimulus => {
+                if(stimulus.length === 0) {
+                    const error = new Error('No stimuli on the database. Please contact the administrator.');
+                    error.statusCode = 404;
+                    throw error;
+                }
+                console.log(stimulus);
+                res.status(200).json({
+                    message: 'Fetched first stimulus',
+                    stimulus: stimulus
+                })
+                firstStimulus = stimulus
+                //return stimulus;
+            })
+            .catch(err => {
+                if(!err.statusCode) {
+                    err.statusCode = 500;
+                }
+                next(err);
+            })
+
+
+            /*
+            Stimulus.aggregate([{ $sample:{ size: 1 }}])
+            .then(stimulus => {
+                if(stimulus.length === 0) {
+                    const error = new Error('No stimuli on the database. Please contact the administrator.');
+                    error.statusCode = 404;
+                    throw error;
+                }
+                console.log(stimulus);
+                res.status(200).json({
+                    message: 'Fetched first stimulus',
+                    stimulus: stimulus
+                })
+                return stimulus;
+            })
+
+            .then(firstSti => {
+                firstStimulus = objectId(firstSti[0].type_id);
+                console.log(firstStimulus)
+                return firstSti
+            })
+
+
+            Type.findById(firstStimulus)
+            .then(tpe => {
+                if(tpe.length === 0) {
+                    const error = new Error('No types on the database. Please contact the administrator.');
+                    error.statusCode = 404;
+                    throw error;
+                }
+                console.log(tpe)
+            })*/
+        }
+    })
+    .catch(err => {
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    })
+    // 2) If so, pick and response with two stimuli (same type)
     // 3) else response with a new stimulus (or two new stimuli)
     // Hints: Check in the table answer if the user has
+}
+
+firstRunStimulus = () => {
+    /*console.log("new 2 stimulus");
+    let typeStimulus = null;
+    Stimulus.aggregate([{ $sample:{ size: 1 }}])
+    .then(stimulus => {
+        if(stimulus.length === 0) {
+            const error = new Error('No stimuli on the database. Please contact the administrator.');
+            error.statusCode = 404;
+            throw error;
+        }
+        console.log(stimulus);
+        res.status(200).json({
+            message: 'Fetched first stimulus',
+            stimulus: stimulus
+        })
+    })
+    .catch(err => {
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    })*/
+
+    /*Stimulus.find()
+    .then(stimuli => {
+        if(stimuli.length === 0) {
+            const error = new Error('No stimuli on the database. Please contact the administrator.');
+            error.statusCode = 404;
+            throw error; 
+        }
+        console.log(stimuli);
+        res.status(200).json({
+            message: 'Fetched stimuli successfully.',
+            stimuli: stimuli
+        })
+    })
+    .catch(err => {
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    })*/
+/*
+    Type.findOne({ _id : objectId(typeStimulus) })
+    .then(type => {
+        console.log(typeStimulus)
+        console.log("asd"+type)
+        return true;
+    })*/
+    /*.then(type => {
+        Type.findById({ _id: type_id})
+        Type.updateOne(
+            { type_text: { $in: [] } }
+        )
+    })*/
+    
+}
+
+nthRunStimulus = () => {
+    console.log("old user stimulos")
 }
 
 
