@@ -102,6 +102,7 @@ exports.getNextItems = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
+    const arrayElement = ['forest', 'car']
     const userId = objectId(req.query.userId);
     Answer.findOne({ user_id: userId })
     .then(userFound => {
@@ -111,13 +112,29 @@ exports.getNextItems = (req, res, next) => {
             console.log("New user");
             let firstStimulus;
             Stimulus.aggregate([
-                { $sample:{ size: 1 } },
+                { $sample:{ size: 2 } },
+                { $set: { exclude: false } },
                 {
                     $lookup: {
                         from: 'types',
                         localField: 'type_id',
                         foreignField: '_id',
+                        
+                        pipeline: [{
+                            $match: {
+                                type_text: {
+                                    $in: [arrayElement[0]]
+                                }
+                                
+                            }
+                        }],
                         as: 'firstStimulus'
+                    },
+                    $lookup: {
+                        from: 'questions',
+                        localField: "question_id",
+                        foreignField: "_id",
+                        as: "questionStimulus"
                     }
                 }
             ])
@@ -132,7 +149,7 @@ exports.getNextItems = (req, res, next) => {
                     message: 'Fetched first stimulus',
                     stimulus: stimulus
                 })
-                firstStimulus = stimulus[0].firstStimulus[0].type_text
+                //firstStimulus = stimulus[0].firstStimulus[0].type_text
                 console.log(firstStimulus)
                 return stimulus;
             })
@@ -143,7 +160,7 @@ exports.getNextItems = (req, res, next) => {
                 next(err);
             })
 
-
+/*
             Stimulus.aggregate([
                 { $sample:{ size: 1 } },
                 {
@@ -175,7 +192,7 @@ exports.getNextItems = (req, res, next) => {
                     err.statusCode = 500;
                 }
                 next(err);
-            })
+            })*/
 
 
             /*
@@ -222,85 +239,6 @@ exports.getNextItems = (req, res, next) => {
     // 3) else response with a new stimulus (or two new stimuli)
     // Hints: Check in the table answer if the user has
 }
-
-firstRunStimulus = () => {
-    /*console.log("new 2 stimulus");
-    let typeStimulus = null;
-    Stimulus.aggregate([{ $sample:{ size: 1 }}])
-    .then(stimulus => {
-        if(stimulus.length === 0) {
-            const error = new Error('No stimuli on the database. Please contact the administrator.');
-            error.statusCode = 404;
-            throw error;
-        }
-        console.log(stimulus);
-        res.status(200).json({
-            message: 'Fetched first stimulus',
-            stimulus: stimulus
-        })
-    })
-    .catch(err => {
-        if(!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    })*/
-
-    /*Stimulus.find()
-    .then(stimuli => {
-        if(stimuli.length === 0) {
-            const error = new Error('No stimuli on the database. Please contact the administrator.');
-            error.statusCode = 404;
-            throw error; 
-        }
-        console.log(stimuli);
-        res.status(200).json({
-            message: 'Fetched stimuli successfully.',
-            stimuli: stimuli
-        })
-    })
-    .catch(err => {
-        if(!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    })*/
-/*
-    Type.findOne({ _id : objectId(typeStimulus) })
-    .then(type => {
-        console.log(typeStimulus)
-        console.log("asd"+type)
-        return true;
-    })*/
-    /*.then(type => {
-        Type.findById({ _id: type_id})
-        Type.updateOne(
-            { type_text: { $in: [] } }
-        )
-    })*/
-    
-}
-
-nthRunStimulus = () => {
-    console.log("old user stimulos")
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*
 exports.postAnswers = (req, res, next) => {
