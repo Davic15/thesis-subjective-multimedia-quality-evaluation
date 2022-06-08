@@ -102,132 +102,78 @@ exports.getNextItems = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
-    const arrayElement = ['forest', 'car']
+
     const userId = objectId(req.query.userId);
+    const numStimulus = req.query.numStimulus;
+    const typeStimulus = req.query.typeStimulus.split(',');
+    let firstStimulus;
     Answer.findOne({ user_id: userId })
     .then(userFound => {
         if(userFound) {
             console.log("User found on the database");
+            // Get the previous types and genere new random types to display
         } else {
             console.log("New user");
-            let firstStimulus;
-            Stimulus.aggregate([
-                { $sample:{ size: 2 } },
-                { $set: { exclude: false } },
-                {
-                    $lookup: {
-                        from: 'types',
-                        localField: 'type_id',
-                        foreignField: '_id',
-                        
-                        pipeline: [{
-                            $match: {
-                                type_text: {
-                                    $in: [arrayElement[0]]
-                                }
-                                
-                            }
-                        }],
-                        as: 'firstStimulus'
-                    },
-                    $lookup: {
-                        from: 'questions',
-                        localField: "question_id",
-                        foreignField: "_id",
-                        as: "questionStimulus"
-                    }
-                }
-            ])
-            .then(stimulus => {
-                if(stimulus.length === 0) {
-                    const error = new Error('No stimuli on the database. Please contact the administrator.');
-                    error.statusCode = 404;
-                    throw error;
-                }
-                console.log(stimulus);
-                res.status(200).json({
-                    message: 'Fetched first stimulus',
-                    stimulus: stimulus
-                })
-                //firstStimulus = stimulus[0].firstStimulus[0].type_text
-                console.log(firstStimulus)
-                return stimulus;
-            })
-            .catch(err => {
-                if(!err.statusCode) {
-                    err.statusCode = 500;
-                }
-                next(err);
-            })
-
-/*
-            Stimulus.aggregate([
-                { $sample:{ size: 1 } },
-                {
-                    $lookup: {
-                        from: 'types',
-                        localField: 'type_id',
-                        foreignField: '_id',
-                        as: 'firstStimulus',
-                        pipeline: { type_id: { $in: [firstStimulus ]}}
-                    },
-                }
-            ])
-            .then(stimulus => {
-                if(stimulus.length === 0) {
-                    const error = new Error('No stimuli on the database. Please contact the administrator.');
-                    error.statusCode = 404;
-                    throw error;
-                }
-                console.log(stimulus);
-                res.status(200).json({
-                    message: 'Fetched first stimulus',
-                    stimulus: stimulus
-                })
-                firstStimulus = stimulus
-                //return stimulus;
-            })
-            .catch(err => {
-                if(!err.statusCode) {
-                    err.statusCode = 500;
-                }
-                next(err);
-            })*/
-
-
-            /*
-            Stimulus.aggregate([{ $sample:{ size: 1 }}])
-            .then(stimulus => {
-                if(stimulus.length === 0) {
-                    const error = new Error('No stimuli on the database. Please contact the administrator.');
-                    error.statusCode = 404;
-                    throw error;
-                }
-                console.log(stimulus);
-                res.status(200).json({
-                    message: 'Fetched first stimulus',
-                    stimulus: stimulus
-                })
-                return stimulus;
-            })
-
-            .then(firstSti => {
-                firstStimulus = objectId(firstSti[0].type_id);
-                console.log(firstStimulus)
-                return firstSti
-            })
-
-
-            Type.findById(firstStimulus)
-            .then(tpe => {
-                if(tpe.length === 0) {
-                    const error = new Error('No types on the database. Please contact the administrator.');
-                    error.statusCode = 404;
-                    throw error;
-                }
-                console.log(tpe)
-            })*/
+            // Find some types (randomly) to display
         }
+        Stimulus.aggregate([
+            { $sample:{ size: parseInt(numStimulus) } },
+            { $set: { exclude: false } },
+            {
+                $lookup: {
+                    from: 'types',
+                    localField: '_id',
+                    foreignField: 'type_id',
+                    pipeline: [{
+                        $match: {
+                            type_text: {
+                                $in: [typeStimulus]
+                            } 
+                        },
+                    }],
+                    as: 'setStimuli',
+                },    
+            },
+            {
+                $lookup: {
+                    from: 'questions',
+                    localField: "question_id",
+                    foreignField: "_id",
+                    as: "questionStimulus"
+                }
+            },
+            { $unwind: '$questionStimulus' },
+            {
+                $lookup: {
+                    from: 'types',
+                    localField: "type_id",
+                    foreignField: "_id",
+                    as: "typeStimulus"
+                }
+            },
+            { $unwind: '$typeStimulus' },
+        ])
+        .then(stimulus => {
+            if(stimulus.length === 0) {
+                const error = new Error('There is a problem getting data. Please contact the administrator.');
+                error.statusCode = 404;
+                throw error;
+            }
+            //console.log(stimulus);
+            res.status(200).json({
+                message: 'Fetched first stimulus',
+                stimulus: stimulus
+            })
+            firstStimulus = stimulus;
+            console.log(JSON.stringify(firstStimulus[0]._id))
+            return stimulus;
+        })
+        .catch(err => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        })
     })
     .catch(err => {
         if(!err.statusCode) {
@@ -235,9 +181,6 @@ exports.getNextItems = (req, res, next) => {
         }
         next(err);
     })
-    // 2) If so, pick and response with two stimuli (same type)
-    // 3) else response with a new stimulus (or two new stimuli)
-    // Hints: Check in the table answer if the user has
 }
 
 /*

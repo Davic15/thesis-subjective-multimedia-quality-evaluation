@@ -26,7 +26,9 @@ router.post(
 //router.get('/getNextItems/:userId', isAuth, testController.getNextItems);
 router.get('/getNextItems', isAuth,
     [
-        query('userId').trim().notEmpty().withMessage('Please provide a valid userId.')
+        query('userId').trim().notEmpty().withMessage('Please provide a valid userId.'),
+        query('numStimulus').trim().notEmpty().isInt({ min: 1, max: 2}).withMessage('Please provided a number of stimuli to get from the database.'),
+        query('typeStimulus').trim().notEmpty().withMessage('Please provided a set of types to find')
     ],
     testController.getNextItems
 );
