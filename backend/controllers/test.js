@@ -111,10 +111,10 @@ exports.getNextItems = (req, res, next) => {
     .then(userFound => {
         if(userFound) {
             console.log("User found on the database");
-            // Get the previous types and genere new random types to display
+            // Get the previous types and generate new random types to display
         } else {
             console.log("New user");
-            // Find some types (randomly) to display
+            // Find some types (randomly) to display. Check the type table.
         }
         Stimulus.aggregate([
             { $sample:{ size: parseInt(numStimulus) } },

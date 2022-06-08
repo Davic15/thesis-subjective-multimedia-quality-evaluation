@@ -3,7 +3,7 @@
 ## Note: 
 * No sign up and/or sign is required to test the server.
 * Use your own MongoDB link to connect to your own database.
-* JSONWebToken add for authorization.
+* JSONWebToken added for authorization.
 
 ## API List (End Points)
 * ### /admin/postAddStimulus
