@@ -3,45 +3,67 @@
 ## Note: 
 * No sign up and/or sign is required to test the server.
 * Use your own MongoDB link to connect to your own database.
+* JSONWebToken add for authorization.
 
 ## API List (End Points)
-* ### /admin/postUploadStimuli
+* ### /admin/postAddStimulus
 Access: Public
 Type: Post
 Body: { 
-    stimuliPath: array(), 
-    questionsNormal: string , 
-    questionsSanity: string 
+    questionId: objectId, 
+    url: string , 
+    typeId: objectId 
+}
+Response: 200
+Description: Create a new row in the database with the information about a stimulus, it requires a link (image) to perform the test.
+
+* ### /admin/postAddQuestion
+Access: Public
+Type: Post
+Body: {
+    questionBody: string
 }
 Response: 201
-Description: Upload two stimuli files (video and/or image), the questions for those stimuli and a sanity question. The data is saved into the database.
+Description: It saves the question to be asked during the test.
+
+* ### /admin/postTypesStimulus
+Access: Public
+Type: Post
+Body: {
+    typeText: string
+}
+Response: 201
+Description: It saved types of the current stimulus.
+
+* ### /test/getStimuli
+Access: Authorization
+Type: Get
+Body: { none }
+Response: 200
+Description: This is use for developing purposes. It retrieves the full set of stimuli in the database.
 
 * ### /test/postUserInformation
 Access: Public
 Type: Post
 Body: {
     email: string,
-    age: integer,
-    gender: string
+    gender: string,
+    age: integer
 }
 Response: 201
-Description: Save basic information about the user who is taking the test, more or less information can be asked.
+Description: It saves the information of a new user. When the new participant is created a JSONWebToken is created and it gives authorization to take the test for an hour (the value of 1h is for testing, it will be increased in the future).
 
-* ### /test/getNextItems
+* ### /test/getNextItems 
 Access: Public
 Type: Get
-Body: { none }
-Response: 200
-Description: Returns an array with all stimuli, normal questions and sanity question.
-
-* ### /test/postAnswers
-Access: Public
-Type: Post
-Body: {
-    userId: ObjectId,
-    stimuliId: ObjectId,
-    answerNormal: string,
-    answerSanity: string
+Query: {
+    userId: objectId,
+    numStimulus: integer,
+    typeStimulus: array[string]
 }
 Response: 200
-Description: Save answers for normal questions or a single answer for a sanity qustion. The userId and the stimuliId are required to save the answer in the database.
+Description: It retrieves the next 1 or 2 stimuli to display, taking in consideration the previous types and selecting from the the database a new single/paire of stimuli.
+Still under development.
+
+
+* ### Test performed using Postman
