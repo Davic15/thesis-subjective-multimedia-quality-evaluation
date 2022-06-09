@@ -4,11 +4,12 @@ const testController = require('../controllers/test');
 const isAuth = require('../middleware/is-auth');
 const router = express.Router()
 
-//router.get('/getStimuliTest', isAuth, testController.getStimuli);
+//For the future, add an extra secuity checking if the email is valid. https://github.com/mfbx9da4/deep-email-validator
+
+//* Just for testing purposes.
 router.get('/getStimuliTest', isAuth, testController.getStimuli);
 
-
-
+//* Save the information for every new user who enters the system.
 router.post(
     '/postUserInformation', 
     [
@@ -19,11 +20,7 @@ router.post(
     testController.postUserInformation
 );
 
-//router.post('/postAnswers', testController.postAnswers);
-
-
-//router.get('/getNextItems', isAuth, testController.getNextItems);
-//router.get('/getNextItems/:userId', isAuth, testController.getNextItems);
+//* It privides the next/next stimulus/stimuli to work with.
 router.get('/getNextItems', isAuth,
     [
         query('userId').trim().notEmpty().withMessage('Please provide a valid userId.'),
@@ -32,7 +29,5 @@ router.get('/getNextItems', isAuth,
     ],
     testController.getNextItems
 );
-
-
 
 module.exports = router;

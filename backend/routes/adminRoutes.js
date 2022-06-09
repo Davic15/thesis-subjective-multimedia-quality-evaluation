@@ -3,6 +3,7 @@ const { body } = require('express-validator');
 const adminController = require('../controllers/admin');
 const router = express.Router();
 
+//* It save a new stimulus.
 router.post(
     '/postAddStimulus',
     [
@@ -12,6 +13,7 @@ router.post(
     adminController.postAddStimulus
 );
 
+//* It saved question to be used with the stimulus.
 router.post(
     '/postAddQuestion',
     [
@@ -20,6 +22,7 @@ router.post(
     adminController.postAddQuestion
 );
 
+//* It saved the array with types to be used with the stimulus.
 router.post(
     '/postTypesStimulus',
     [
