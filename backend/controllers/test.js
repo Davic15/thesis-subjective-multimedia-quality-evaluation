@@ -8,14 +8,15 @@ const User = require('../models/user');
 const Response = require('../models/response');
 const Answer = require('../models/answer');
 const Type = require('../models/type');
+const Test = require('../models/test');
 
 const objectId = mongoose.Types.ObjectId;
 
 //* Get all stimuli array (testing)
-exports.getStimuli = (req, res, next) => {
+exports.getStimuli = async (req, res, next) => {
     console.log('Get Stimuli');
-    Stimulus.find()
-    .then(stimuli => {
+    try {
+        const stimuli = await Stimulus.find();
         if(stimuli.length === 0) {
             const error = new Error('No stimuli on the database. Please contact the administrator.');
             error.statusCode = 404;
@@ -26,20 +27,19 @@ exports.getStimuli = (req, res, next) => {
             message: 'Fetched stimuli successfully.',
             stimuli: stimuli
         })
-    })
-    .catch(err => {
+    } catch (err) {
         if(!err.statusCode) {
             err.statusCode = 500;
         }
         next(err);
-    })
+    }
 }
 
 /**
  * postUserInformation method
  * * It saves user basic information. The email should be unique otherwise an error will be thrown.
  */
-exports.postUserInformation = (req, res, next) => {
+exports.postUserInformation = async (req, res, next) => {
     console.log('Post user information');
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
@@ -51,9 +51,9 @@ exports.postUserInformation = (req, res, next) => {
     const email = req.body.email;
     const age = req.body.age;
     const gender = req.body.gender;
-
-    User.findOne({ email: email })
-    .then(userFound => {
+    
+    try{
+        const userFound = await User.findOne({ email: email});
         if(userFound) {
             const error = new Error('User already exists in the database.');
             error.statusCode = 409;
@@ -64,9 +64,7 @@ exports.postUserInformation = (req, res, next) => {
             gender: gender,
             age: age
         });
-        return user.save();
-    })
-    .then(user => {
+        await user.save();
         console.log('User information saved!');
         const token = jwt.sign({
             email: user.email,
@@ -79,20 +77,17 @@ exports.postUserInformation = (req, res, next) => {
             userId: user._id,
             token: token
         });
-        //res.status(200).json({ token: token, userId: user._id.toString() })
-        console.log(token)
-    })
-    .catch(err => {
+    } catch (err) {
         if(!err.statusCode) {
             err.statusCode = 500;
         }
         next(err);
-    })
+    }
 }
 
 //* Get the stimuli to display. (Random)
 exports.getNextItems = (req, res, next) => {
-    // 1) check if this is the first time that user runs the application
+    // 1) check if this is the first time that user runs the application (to send 2 stimuli)
     //  1.1) Check in the table Answer if the user has already a answer saved
     // use the user id as parameter (after register to check if in the table answer we have that user_id)
     console.log("Get Next Items");
@@ -106,16 +101,42 @@ exports.getNextItems = (req, res, next) => {
     const userId = objectId(req.query.userId);
     const numStimulus = req.query.numStimulus;
     const typeStimulus = req.query.typeStimulus.split(',');
-    let firstStimulus;
+    let randomFirstTime;
     Answer.findOne({ user_id: userId })
     .then(userFound => {
+        
         if(userFound) {
             console.log("User found on the database");
             // Get the previous types and generate new random types to display
         } else {
             console.log("New user");
             // Find some types (randomly) to display. Check the type table.
+            Type.aggregate([{ $sample: { size: 1 } }])
+            .then(typeRandom => {
+                if(typeRandom.length === 0){
+                    const error = new Error('No types on the database. Please contact the administrator.');
+                    error.statusCode = 404;
+                    throw error;
+                }
+                console.log(typeRandom);
+                /*res.status(200).json({
+                    typeRandom: typeRandom
+                })*/
+                return typeRandom;
+            })
+            .then((x) => {
+                let valor = JSON.parse(x);
+                randomFirstTime = valor;
+                return valor;
+            })
+            .catch(err => {
+                if(!err.statusCode) {
+                    err.statusCode = 500;
+                }
+                next(err);
+            })
         }
+        console.log("aqui"+randomFirstTime)
         Stimulus.aggregate([
             { $sample:{ size: parseInt(numStimulus) } },
             { $set: { exclude: false } },
@@ -164,9 +185,12 @@ exports.getNextItems = (req, res, next) => {
                 message: 'Fetched first stimulus',
                 stimulus: stimulus
             })
-            firstStimulus = stimulus;
-            console.log(JSON.stringify(firstStimulus[0]._id))
+            //firstStimulus = stimulus;
+            //console.log(JSON.stringify(firstStimulus[0]._id))
             return stimulus;
+        })
+        .then(res => {
+            console.log(JSON.stringify(res))
         })
         .catch(err => {
             if(!err.statusCode) {
@@ -182,49 +206,3 @@ exports.getNextItems = (req, res, next) => {
         next(err);
     })
 }
-
-/*
-exports.postAnswers = (req, res, next) => {
-    console.log('Entering post Answer');
-    const errors = validationResult(req);
-    if(!errors.isEmpty()) {
-        const error = new Error('Validation failed, entered data is incorrect.')
-        error.statusCode = 422;
-        throw error;
-    }
-    const userId = objectId(req.body.userId);
-    const stimuliId = objectId(req.body.stimuliId);
-    const answerNormal = req.body.answerNormal;
-    const answerSanity = req.body.answerSanity;
-
-    const response = new Response({
-        user_id: userId,
-        stimuli_id: stimuliId,
-        answer_normal: answerNormal || 'N/A',
-        answer_sanity: answerSanity || 'N/A'
-    });
-
-    Stimuli.findById(stimuliId)
-    .then(stimuli => {
-        if (!stimuli) {
-            const error = new Error('Could not find that stimuli in the database.');
-            error.statusCode = 404;
-            throw error;
-        }
-        return response.save()
-    })
-    .then(response => {
-        console.log(response)
-        res.status(200).json({ 
-            message: 'Response saved!',
-            responseId: response._id
-        })
-    })
-    .catch(err => {
-        if(!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    })
-
-}*/

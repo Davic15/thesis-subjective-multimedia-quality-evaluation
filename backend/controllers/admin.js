@@ -9,7 +9,7 @@ const Type = require('../models/type');
 const objectId = mongoose.Types.ObjectId;
 
 //* Add Stimulus
-exports.postAddStimulus = (req, res, next) => {
+exports.postAddStimulus = async (req, res, next) => {
     console.log('Entering Add Stimulus method.');
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
@@ -20,38 +20,34 @@ exports.postAddStimulus = (req, res, next) => {
     const questionId = objectId(req.body.questionId);
     const url = req.body.url;
     const typeId = objectId(req.body.typeId);
-
-    Question.findById(questionId)
-    .then(question => {
+    try {
+        const question = await Question.findById(questionId);
         if(!question) {
             const error = new Error ('Could not find a question.');
             error.statusCode = 404;
-            throw Error;
-        }        
+            throw error;
+        }
         const stimulus = new Stimulus({
             url: url,
             question_id: questionId,
             type_id: typeId
         });
-        return stimulus.save();
-    })
-    .then(result => {
+        await stimulus.save();
         res.status(200).json({
-            message: 'Stimulus uploaded successfully!',
-            stimulusId: result._id
+            message: 'Stimulus created successfully!',
+            stimulusId: stimulus._id
         });
-    })
-    .catch(err => {
+    } catch (err) {
         if(!err.statusCode) {
             err.statusCode = 500;
         }
         next(err);
-    })
-};
+    }
+}
 
 
 //* Add questions
-exports.postAddQuestion = (req, res, next) => {
+exports.postAddQuestion = async (req, res, next) => {
     console.log('Entering Add question method.');
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
@@ -59,54 +55,47 @@ exports.postAddQuestion = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
-
     const questionBody = req.body.question;
     const question = new Question({
         text_question: questionBody
     });
-
-    question.save()
-    .then(question => {
+    try {
+        await question.save();
         res.status(201).json({
             message: 'Question added successfully.',
             questionId: question._id
         })
-        console.log(question);
-    })
-    .catch(err => {
+    } catch(err) {
         if(!err.statusCode) {
             err.statusCode = 500;
         }
         next(err);
-    });
+    }
 };
 
 //* Add Types
-exports.postTypesStimulus = (req, res, next) => {
+exports.postTypesStimulus = async (req, res, next) => {
     console.log("Entering add Type per Stimulus");
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         const error = new Error('Validation failed, entered data is incorrect');
         error.statusCode = 422;
-        throw Error;
+        throw error;
     }
     const typeText = req.body.typeStimulus.toString().split(',');
-    console.log(typeText)
     const type = new Type({
         type_text: typeText
     });
-    type.save()
-    .then(type => {
+    try {
+        await type.save();
         res.status(201).json({
             message: 'Type added successfully',
             typeId: type._id
         })
-        console.log(type);
-    })
-    .catch(err => {
+    } catch(err) {
         if(!err.statusCode) {
             err.statusCode = 500;
         }
         next(err);
-    });
+    }
 }

@@ -26,7 +26,7 @@ router.post(
 router.post(
     '/postTypesStimulus',
     [
-        body('typeStimulus').notEmpty().isArray().withMessage('Please prive a type/types por each stimulus.')
+        body('typeStimulus').notEmpty().withMessage('Please prive a type/types por each stimulus.')
     ],
     adminController.postTypesStimulus
 );
