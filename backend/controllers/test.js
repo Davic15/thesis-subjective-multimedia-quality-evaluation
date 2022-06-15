@@ -69,7 +69,7 @@ exports.postUserInformation = async (req, res, next) => {
         const token = jwt.sign({
             email: user.email,
             userId: user._id.toString()
-        }, 'secret', { expiresIn: '1h'} );
+        }, 'secret', { expiresIn: '6h'} );
 
         res.status(201).json({ 
             message: 'User information saved!',
@@ -86,7 +86,7 @@ exports.postUserInformation = async (req, res, next) => {
 }
 
 //* Get the stimuli to display. (Random)
-exports.getNextItems = (req, res, next) => {
+exports.getNextItems = async (req, res, next) => {
     // 1) check if this is the first time that user runs the application (to send 2 stimuli)
     //  1.1) Check in the table Answer if the user has already a answer saved
     // use the user id as parameter (after register to check if in the table answer we have that user_id)
@@ -97,47 +97,36 @@ exports.getNextItems = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
-
     const userId = objectId(req.query.userId);
-    const numStimulus = req.query.numStimulus;
+    let numStimulus = req.query.numStimulus;
     const typeStimulus = req.query.typeStimulus.split(',');
-    let randomFirstTime;
-    Answer.findOne({ user_id: userId })
-    .then(userFound => {
-        
+    let typeRandom;
+    let stimulus;
+    try {
+        const userFound = await Answer.findOne({ user_id: userId });
         if(userFound) {
             console.log("User found on the database");
             // Get the previous types and generate new random types to display
+            // To do a test, I will send back to stimuli if the uer is not new.
+            numStimulus = 2;
+            console.log(typeStimulus);
         } else {
             console.log("New user");
             // Find some types (randomly) to display. Check the type table.
-            Type.aggregate([{ $sample: { size: 1 } }])
-            .then(typeRandom => {
-                if(typeRandom.length === 0){
-                    const error = new Error('No types on the database. Please contact the administrator.');
-                    error.statusCode = 404;
-                    throw error;
-                }
-                console.log(typeRandom);
-                /*res.status(200).json({
-                    typeRandom: typeRandom
-                })*/
-                return typeRandom;
-            })
-            .then((x) => {
-                let valor = JSON.parse(x);
-                randomFirstTime = valor;
-                return valor;
-            })
-            .catch(err => {
-                if(!err.statusCode) {
-                    err.statusCode = 500;
-                }
-                next(err);
-            })
+            //const typeRandom = await Type.aggregate([{ $sample: { size: 1 } }])
+            typeRandom = await Type.aggregate([{ $sample: { size: 1 } }])
+            if(typeRandom.length === 0){
+                const error = new Error('No types on the database. Please contact the administrator.');
+                error.statusCode = 404;
+                throw error;
+            }
+            /*console.log(typeRandom);
+            res.status(200).json({
+                typeRandom: typeRandom
+            })*/
         }
-        console.log("aqui"+randomFirstTime)
-        Stimulus.aggregate([
+
+        stimulus = await Stimulus.aggregate([
             { $sample:{ size: parseInt(numStimulus) } },
             { $set: { exclude: false } },
             {
@@ -149,6 +138,7 @@ exports.getNextItems = (req, res, next) => {
                         $match: {
                             type_text: {
                                 $in: [typeStimulus]
+                                //$in: [typeStimulus || typeRandom[0].type_text]
                             } 
                         },
                     }],
@@ -174,35 +164,21 @@ exports.getNextItems = (req, res, next) => {
             },
             { $unwind: '$typeStimulus' },
         ])
-        .then(stimulus => {
-            if(stimulus.length === 0) {
-                const error = new Error('There is a problem getting data. Please contact the administrator.');
-                error.statusCode = 404;
-                throw error;
-            }
-            //console.log(stimulus);
-            res.status(200).json({
-                message: 'Fetched first stimulus',
-                stimulus: stimulus
-            })
-            //firstStimulus = stimulus;
-            //console.log(JSON.stringify(firstStimulus[0]._id))
-            return stimulus;
+        if(stimulus.length === 0) {
+            const error = new Error('There is a problem getting data. Please contact the administrator.');
+            error.statusCode = 404;
+            throw error;
+        }
+        console.log(stimulus);
+        res.status(200).json({
+            message: 'Fetched stimuli',
+            stimulus: stimulus
         })
-        .then(res => {
-            console.log(JSON.stringify(res))
-        })
-        .catch(err => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
-    })
-    .catch(err => {
+    } catch(err) {
         if(!err.statusCode) {
             err.statusCode = 500;
         }
         next(err);
-    })
+    }
+    //console.log(typeRandom[0].type_text);
 }
