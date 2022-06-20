@@ -87,9 +87,6 @@ exports.postUserInformation = async (req, res, next) => {
 
 //* Get the stimuli to display. (Random)
 exports.getNextItems = async (req, res, next) => {
-    // 1) check if this is the first time that user runs the application (to send 2 stimuli)
-    //  1.1) Check in the table Answer if the user has already a answer saved
-    // use the user id as parameter (after register to check if in the table answer we have that user_id)
     console.log("Get Next Items");
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
@@ -97,36 +94,36 @@ exports.getNextItems = async (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
+
     const userId = objectId(req.query.userId);
-    let numStimulus = req.query.numStimulus;
     const typeStimulus = req.query.typeStimulus.split(',');
-    let typeRandom;
-    let stimulus;
+    const numStimulus = req.query.numStimulus;
+    let randomTypeToSearch = '';
+
     try {
         const userFound = await Answer.findOne({ user_id: userId });
         if(userFound) {
-            console.log("User found on the database");
-            // Get the previous types and generate new random types to display
-            // To do a test, I will send back to stimuli if the uer is not new.
-            numStimulus = 2;
-            console.log(typeStimulus);
+            console.log("User found on the database");  
+            if(!numStimulus)
+            {
+                const error = new Error('Number of stimuli not defined. Please contact the administrator.');
+                error.statusCode = 404;
+                throw error;
+            }
+            randomTypeToSearch = typeStimulus;
         } else {
-            console.log("New user");
-            // Find some types (randomly) to display. Check the type table.
-            //const typeRandom = await Type.aggregate([{ $sample: { size: 1 } }])
-            typeRandom = await Type.aggregate([{ $sample: { size: 1 } }])
+            console.log("New user.");
+            const typeRandom = await Type.aggregate([{ $sample: { size: 1 } }])
             if(typeRandom.length === 0){
                 const error = new Error('No types on the database. Please contact the administrator.');
                 error.statusCode = 404;
                 throw error;
             }
-            /*console.log(typeRandom);
-            res.status(200).json({
-                typeRandom: typeRandom
-            })*/
+            //console.log(typeRandom[0].type_text);
+            randomTypeToSearch = typeRandom[0].type_text;
         }
 
-        stimulus = await Stimulus.aggregate([
+        const stimulus = await Stimulus.aggregate([
             { $sample:{ size: parseInt(numStimulus) } },
             { $set: { exclude: false } },
             {
@@ -137,10 +134,12 @@ exports.getNextItems = async (req, res, next) => {
                     pipeline: [{
                         $match: {
                             type_text: {
-                                $in: [typeStimulus]
+                                //$in: [typeRandom]
                                 //$in: [typeStimulus || typeRandom[0].type_text]
+                                $in: [randomTypeToSearch]
+
                             } 
-                        },
+                        }
                     }],
                     as: 'setStimuli',
                 },    
@@ -169,7 +168,7 @@ exports.getNextItems = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
-        console.log(stimulus);
+        //console.log(stimulus);
         res.status(200).json({
             message: 'Fetched stimuli',
             stimulus: stimulus
@@ -180,5 +179,4 @@ exports.getNextItems = async (req, res, next) => {
         }
         next(err);
     }
-    //console.log(typeRandom[0].type_text);
 }
