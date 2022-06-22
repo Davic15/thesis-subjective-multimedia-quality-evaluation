@@ -6,6 +6,8 @@ const router = express.Router()
 
 //For the future, add an extra secuity checking if the email is valid. https://github.com/mfbx9da4/deep-email-validator
 
+//* For extra explanation refers to the github README in the respository.
+
 //* Just for testing purposes.
 router.get('/getStimuliTest', isAuth, testController.getStimuli);
 

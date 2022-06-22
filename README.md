@@ -51,7 +51,7 @@ Body: {
     age: integer
 }
 Response: 201
-Description: It saves the information of a new user. When the new participant is created a JSONWebToken is created and it gives authorization to take the test for an hour (the value of 1h is for testing, it will be increased in the future).
+Description: It saves the information of a new user. When the new participant is created a JSONWebToken is created and it gives authorization to take the test for an hour (the value of 6h is for testing, it will be increased in the future).
 
 * ### /test/getNextItems 
 Access: Public
@@ -62,7 +62,7 @@ Query: {
     typeStimulus: array[string]
 }
 Response: 200
-Description: It retrieves the next 1 or 2 stimuli to display, taking in consideration the previous types and selecting from the the database a new single/paire of stimuli.
+Description: It retrieves the next 1 or 2 stimuli to display, taking in consideration the previous types and selecting from the the database a new single/pair of stimuli.
 Still under development.
 
 

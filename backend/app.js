@@ -11,7 +11,7 @@
  *  Package require for the project
  *  Divided in three groups
  *  First group: provided by Node.js
- *  Second groupd: installed using npm
+ *  Second group: installed using npm
  *  Third group: defined by me
  */
 const path = require('path');
@@ -48,8 +48,8 @@ app.use((req, res, next) => {
 
 /**
  *  Routes to work with.
- *  The /admin is related to all action an administrator can do, upload stimuli, statistics, etc
- *  The /test is related to all action performed by users, answer the questions and fill some data.
+ *  The /admin is related to all action an administrator can do. Such as: create new stimuli, create new questions, etc.
+ *  The /test is related to all action performed by users. Such as: create new user, answer questions, etc.
  */
 app.use('/admin', adminRoutes);
 app.use('/test', testRoutes);
@@ -60,7 +60,7 @@ app.use('/test', testRoutes);
 app.use(helmet());
 
 /**
- *  Compression
+ *  Compression (about to be eliminated because it just work with HTML and CSS files that the server is not handling).
  */
 app.use(compression());
 

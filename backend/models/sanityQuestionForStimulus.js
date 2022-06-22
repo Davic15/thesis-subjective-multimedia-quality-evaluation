@@ -28,3 +28,5 @@ const sanityQuestionForStimulusSchema = new Schema({
         require: true
     }
 })
+
+module.exports = mongoose.model('Sanity_Question_for_Stimulus', sanityQuestionForStimulusSchema);

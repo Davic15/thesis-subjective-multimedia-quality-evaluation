@@ -17,3 +17,5 @@ const sanitySchema = new Schema({
         require: true
     }
 }, { timestamps: true });
+
+module.exports = mongoose.model('Sanity', sanitySchema);

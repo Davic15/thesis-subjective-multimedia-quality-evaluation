@@ -3,6 +3,8 @@ const { body } = require('express-validator');
 const adminController = require('../controllers/admin');
 const router = express.Router();
 
+//* For extra explanation refers to the github README in the respository.
+
 //* It save a new stimulus.
 router.post(
     '/postAddStimulus',
